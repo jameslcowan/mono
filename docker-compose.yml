@@ -16,12 +16,15 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      training_net:
+        ipv4_address: 172.20.0.10
 
   postgrest:
     image: docker.io/postgrest/postgrest:v12.0.2
     container_name: training_postgrest
     environment:
-      PGRST_DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      PGRST_DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@172.20.0.10:5432/${POSTGRES_DB}
       PGRST_DB_SCHEMAS: api
       PGRST_DB_ANON_ROLE: anon
       PGRST_JWT_SECRET: ${JWT_SECRET}
@@ -31,6 +34,9 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      training_net:
+        ipv4_address: 172.20.0.11
 
   metabase:
     image: docker.io/metabase/metabase:v0.48.6
@@ -41,12 +47,15 @@ services:
       MB_DB_PORT: 5432
       MB_DB_USER: ${POSTGRES_USER}
       MB_DB_PASS: ${POSTGRES_PASSWORD}
-      MB_DB_HOST: postgres
+      MB_DB_HOST: 172.20.0.10
     ports:
       - "3001:3000"
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      training_net:
+        ipv4_address: 172.20.0.12
 
   pgadmin:
     image: docker.io/dpage/pgadmin4:9.11
@@ -60,6 +69,16 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      training_net:
+        ipv4_address: 172.20.0.13
+
+networks:
+  training_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
 
 volumes:
   postgres_data:
