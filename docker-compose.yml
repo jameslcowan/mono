@@ -48,5 +48,18 @@ services:
       postgres:
         condition: service_healthy
 
+  pgadmin:
+    image: docker.io/dpage/pgadmin4:9.11
+    container_name: training_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@local.dev}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
 volumes:
   postgres_data:
