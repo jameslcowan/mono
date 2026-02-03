@@ -1,7 +1,7 @@
 services:
   postgres:
     image: docker.io/library/postgres:16.2-bookworm
-    container_name: training_postgres
+    container_name: mono_postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -17,12 +17,12 @@ services:
       timeout: 5s
       retries: 5
     networks:
-      training_net:
+      net:
         ipv4_address: 172.20.0.10
 
   postgrest:
     image: docker.io/postgrest/postgrest:v12.0.2
-    container_name: training_postgrest
+    container_name: mono_postgrest
     environment:
       PGRST_DB_URI: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@172.20.0.10:5432/${POSTGRES_DB}
       PGRST_DB_SCHEMAS: api
@@ -35,12 +35,12 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      training_net:
+      net:
         ipv4_address: 172.20.0.11
 
   metabase:
     image: docker.io/metabase/metabase:v0.48.6
-    container_name: training_metabase
+    container_name: mono_metabase
     environment:
       MB_DB_TYPE: postgres
       MB_DB_DBNAME: metabase
@@ -56,12 +56,12 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      training_net:
+      net:
         ipv4_address: 172.20.0.12
 
   pgadmin:
     image: docker.io/dpage/pgadmin4:9.11
-    container_name: training_pgadmin
+    container_name: mono_pgadmin
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@local.dev}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
@@ -74,11 +74,11 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      training_net:
+      net:
         ipv4_address: 172.20.0.13
 
 networks:
-  training_net:
+  net:
     driver: bridge
     ipam:
       config:
